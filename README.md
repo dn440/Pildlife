@@ -14,3 +14,8 @@ To automate the script to run at startup, use:
 To the bottom add the line:
 `@reboot python /home/pi/pildlife/run.py &`
 Especially important is the & at the end of the call, since our script runs an infinite loop. Without the `&`, the boot would get stuck at running the python script and not continue.
+
+
+# Useful websites
+- https://www.waveshare.com/wiki/RPi_IR-CUT_Camera
+- https://thepihut.com/blogs/raspberry-pi-tutorials/installing-the-raspberry-pi-camera-board
