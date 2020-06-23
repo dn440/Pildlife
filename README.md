@@ -19,3 +19,4 @@ Especially important is the & at the end of the call, since our script runs an i
 # Useful websites
 - https://www.waveshare.com/wiki/RPi_IR-CUT_Camera
 - https://thepihut.com/blogs/raspberry-pi-tutorials/installing-the-raspberry-pi-camera-board
+- https://electronics.stackexchange.com/questions/433246/controling-mosfet-by-3-3v-raspberry-pi-gpio-pin
