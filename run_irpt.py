@@ -28,6 +28,7 @@ def signal_handler(sig, frame):
 
 def sensor_callback(channel):
     if GPIO.input(GPIO_PIR):
+        print("motion detected!")
         GPIO.output(GPIO_MOSFET, 1) # turn on LEDs
         time.sleep(5)
         # define image name by using time
@@ -36,6 +37,7 @@ def sensor_callback(channel):
         camera.capture(dest + str(now) + '.jpg') # take image
         time.sleep(0.1)
     else:
+        print("no motion")
         GPIO.output(GPIO_MOSFET, 0) # turn off LEDs
         time.sleep(0.1)
 
@@ -47,7 +49,7 @@ if __name__ == '__main__':
     GPIO.output(GPIO_filter, 0) # toggle IR filter
     # this pin controls the MOSFET gating power to IR LEDs
     GPIO.setup(GPIO_MOSFET, GPIO.OUT)
-    GPIO.add_event_detect(GPIO_PIR, GPIO.RISING, callback=sensor_callback, bouncetime=100)
+    GPIO.add_event_detect(GPIO_PIR, GPIO.BOTH, callback=sensor_callback, bouncetime=100)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.pause()
