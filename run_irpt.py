@@ -8,7 +8,7 @@ from datetime import datetime
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD) # set mode to position numbering
 # Read output from PIR motion sensor
-GPIO.setup(18, GPIO.IN)
+GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 # this pin will control the IR-CUT filter (low = filter off)
 GPIO.setup(33, GPIO.OUT)
 # this pin controls the MOSFET gating power to IR LEDs
@@ -33,6 +33,7 @@ try:
             GPIO.output(16, 0) # turn off LEDs
             time.sleep(0.1)
         elif i==1:               #When output from motion sensor is HIGH
+            GPIO.wait_for_edge(18, GPIO.RISING)
             print "Intruder detected",i
             GPIO.output(16, 1) # turn on LEDs
             time.sleep(5)
