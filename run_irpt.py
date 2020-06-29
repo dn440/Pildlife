@@ -1,18 +1,16 @@
+import shutil
+import signal                   
+import sys
+import time
+from datetime import datetime
 from picamera import PiCamera
 import RPi.GPIO as GPIO
-import time
-import shutil
-from datetime import datetime
 
 # set up GPIO
 GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BOARD) # set mode to position numbering
-# Read output from PIR motion sensor
-GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-# this pin will control the IR-CUT filter (low = filter off)
-GPIO.setup(33, GPIO.OUT)
-# this pin controls the MOSFET gating power to IR LEDs
-GPIO.setup(16, GPIO.OUT)
+GPIO_filter = 33
+GPIO_PIR = 18
+GPIO_MOSFET = 16
 
 # variable definitions
 dest = "/mnt/logger/pictures/"
@@ -21,30 +19,38 @@ camera = PiCamera()
 camera.resolution = (2592, 1944)
 camera.framerate = 15
 camera.exposure_mode = 'night'
+# toggle IR filter
+GPIO.output(GPIO_filter, 0)
 
-try:
-    while True:
-        GPIO.output(33, 0) # toggle IR filter
+def signal_handler(sig, frame):
+    GPIO.cleanup()
+    sys.exit(0)
+
+def sensor_callback(channel):
+    if GPIO.input(GPIO_PIR):
+        GPIO.output(GPIO_MOSFET, 1) # turn on LEDs
+        time.sleep(5)
+        # define image name by using time
         now = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
         camera.annotate_text = str(now)
-        i=GPIO.input(18)
-        if i==0:                 #When output from motion sensor is LOW
-            print "No intruders",i
-            GPIO.output(16, 0) # turn off LEDs
-            time.sleep(0.1)
-        elif i==1:               #When output from motion sensor is HIGH
-            GPIO.wait_for_edge(18, GPIO.RISING)
-            print "Intruder detected",i
-            GPIO.output(16, 1) # turn on LEDs
-            time.sleep(5)
-            # define image name by using time
-            source = '/home/pi/Pictures/' + str(now) + '.jpg'
-            # take image
-            camera.capture(source)
-            # move image to SD card
-            shutil.move(source, dest)
-            time.sleep(0.1)
+        camera.capture(dest + str(now) + '.jpg') # take image
+        time.sleep(0.1)
+    else:
+        GPIO.output(GPIO_MOSFET, 0) # turn off LEDs
+        time.sleep(0.1)
 
-except KeyboardInterrupt:
-    GPIO.cleanup()
+if __name__ == '__main__':
+    # set mode to position numbering
+    GPIO.setmode(GPIO.BOARD)
+    # pull down PIR motion sensor
+    GPIO.setup(GPIO_PIR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    # this pin will control the IR-CUT filter (low = filter off)
+    GPIO.setup(GPIO_filter, GPIO.OUT)
+    # this pin controls the MOSFET gating power to IR LEDs
+    GPIO.setup(GPIO_MOSFET, GPIO.OUT)
+    GPIO.add_event_detect(BUTTON_GPIO, GPIO.UP, callback=sensor_callback, bouncetime=100)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.pause()
+
 GPIO.cleanup()
