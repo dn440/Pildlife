@@ -9,7 +9,8 @@ PIR sensor
 
 # Configuration
 To automate the script to run at startup, use:
-`crontab -e`
+`sudo crontab -e`
+The sudo here is required so that the script is run as root user during startup, since root rights are required to capture the image directly to the SD card.
 
 To the bottom add the line:
 `@reboot python /home/pi/pildlife/run.py &`
@@ -20,3 +21,4 @@ Especially important is the & at the end of the call, since our script runs an i
 - https://www.waveshare.com/wiki/RPi_IR-CUT_Camera
 - https://thepihut.com/blogs/raspberry-pi-tutorials/installing-the-raspberry-pi-camera-board
 - https://electronics.stackexchange.com/questions/433246/controling-mosfet-by-3-3v-raspberry-pi-gpio-pin
+- https://learn.pimoroni.com/tutorial/sandyj/running-scripts-at-boot
