@@ -1,6 +1,7 @@
 import shutil
 import signal                   
 import sys
+import os
 import time
 from datetime import datetime
 from datetime import time as t 
@@ -14,6 +15,7 @@ GPIO.setmode(GPIO.BOARD)
 GPIO_filter = 33
 GPIO_PIR = 18
 GPIO_MOSFET = 16
+GPIO_switch = 37
 
 # variable definitions
 dest = "/mnt/logger/pictures/"
@@ -50,6 +52,11 @@ def sensor_callback(channel):
         GPIO.output(GPIO_MOSFET, 0) # turn off LEDs
         time.sleep(0.1)
 
+def shutdown(channel):
+    print("Shutting Down")
+    time.sleep(5)
+    os.system("sudo shutdown -h now")
+
 if __name__ == '__main__':
     # pull down PIR motion sensor
     GPIO.setup(GPIO_PIR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -64,6 +71,10 @@ if __name__ == '__main__':
     # this pin controls the MOSFET gating power to IR LEDs
     GPIO.setup(GPIO_MOSFET, GPIO.OUT)
     GPIO.add_event_detect(GPIO_PIR, GPIO.BOTH, callback=sensor_callback, bouncetime=100)
+
+    # this pin responds to a switch to shut down the pi
+    GPIO.setup(GPIO_switch, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.add_event_detect(GPIO_switch, GPIO.FALLING, callback=shutdown, bouncetime=2000)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.pause()
