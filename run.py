@@ -41,12 +41,12 @@ def sensor_callback(channel):
     if GPIO.input(GPIO_PIR):
         print("motion detected!")
         GPIO.output(GPIO_MOSFET, 1) # turn on LEDs
-        time.sleep(5)
+        time.sleep(0.2)
         # define image name by using time
         now = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
         camera.annotate_text = str(now)
         camera.capture(dest + str(now) + '.jpg') # take image
-        time.sleep(0.1)
+        time.sleep(2)
     else:
         print("no motion")
         GPIO.output(GPIO_MOSFET, 0) # turn off LEDs
@@ -61,12 +61,12 @@ if __name__ == '__main__':
     # pull down PIR motion sensor
     GPIO.setup(GPIO_PIR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-    # this pin will control the IR-CUT filter (low = filter off)
+    # this pin will control the IR-CUT filter (low = 0 = filter off)
     GPIO.setup(GPIO_filter, GPIO.OUT)
     if is_time_between(t(22,0), t(06,31)):
         GPIO.output(GPIO_filter, 0) # toggle IR filter off
     else:
-        GPIO.output(GPIO_filter, 1) # toggle IR filter on
+        GPIO.output(GPIO_filter, 0) # toggle IR filter off
 
     # this pin controls the MOSFET gating power to IR LEDs
     GPIO.setup(GPIO_MOSFET, GPIO.OUT)
