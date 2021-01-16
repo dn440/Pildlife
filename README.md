@@ -1,4 +1,4 @@
-# pildlife
+# Pildlife
 Raspberry Pi wildlife camera
 
 # Hardware
